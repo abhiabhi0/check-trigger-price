@@ -1,6 +1,6 @@
 import requests
 
-authorizationToken = "enctoken mFeYY7N3z735zVWshg3QyKKJ5+pc3deBkXfEPd9DfIaJYx4twkJVp/dw4u5atI0L+aiHnvgdvBp+xSdAljnz9RgyKS2Usu3izoUwhAP/O77QK6q/Eprs5Q=="
+authorizationToken = "enctoken "
 
 headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -186,13 +186,14 @@ print()
 print("Add trigger for these: ")
 for symbol, prices in symbol_prices.items():
     pOrL = "LOSS"
+    new_sell_price_trigger = 0.0
     if symbol not in symbol_triggers:
         if symbol_prices[symbol]['last_price'] - symbol_prices[symbol]['average_price'] > 0:
             pOrL = "PROFIT"
-            new_sell_price_trigger = last_price - (last_price * 0.01)
+            new_sell_price_trigger = symbol_prices[symbol]['last_price'] - (symbol_prices[symbol]['last_price'] * 0.01)
             rounded_trigger = round(new_sell_price_trigger / 0.05) * 0.05  # rounding to nearest multiple of 0.05
             rounded_trigger = round(rounded_trigger, 2)  # ensuring two decimal places
             new_sell_price_trigger = rounded_trigger
-            if new_sell_price_trigger < symbol_prices[symbol]['average_price']:
-                new_sell_price_trigger = 0.0
+        if new_sell_price_trigger < symbol_prices[symbol]['average_price']:
+            new_sell_price_trigger = 0.0
         print(f"Symbol: {symbol},\t Status: {pOrL} \t new trigger values: [{new_sell_price_trigger}, {new_sell_price_trigger+new_sell_price_trigger}]")
