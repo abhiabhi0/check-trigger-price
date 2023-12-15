@@ -1,6 +1,6 @@
 import requests
 
-authorizationToken = "enctoken "
+authorizationToken = "enctoken mFeYY7N3z735zVWshg3QyKKJ5+pc3deBkXfEPd9DfIaJYx4twkJVp/dw4u5atI0L+aiHnvgdvBp+xSdAljnz9RgyKS2Usu3izoUwhAP/O77QK6q/Eprs5Q=="
 
 headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -91,12 +91,12 @@ def printTriggerValues(transactionType):
                         last_price = prices['last_price']
                         average_price = prices['average_price']
 
-                        new_sell_price_trigger = last_price - (last_price * 0.05)
+                        new_sell_price_trigger = last_price - (last_price * 0.01)
                         rounded_trigger = round(new_sell_price_trigger / 0.05) * 0.05  # rounding to nearest multiple of 0.05
                         rounded_trigger = round(rounded_trigger, 2)  # ensuring two decimal places
                         new_sell_price_trigger = rounded_trigger
 
-                        if new_sell_price_trigger > average_price and new_sell_price_trigger - gtt['trigger_values'][0] >= 1:
+                        if new_sell_price_trigger > average_price and (new_sell_price_trigger - gtt['trigger_values'][0])/gtt['trigger_values'][0] >= 0.01:
                             print(f"{symbol}: \t avg buy price: {average_price}, last_price: {last_price:<10.2f} \t old trigger values: [{gtt['trigger_values'][0]}, {gtt['trigger_values'][1]}] \t new trigger values: [{new_sell_price_trigger}, {new_sell_price_trigger+new_sell_price_trigger}]")
 
                             # print(f"new trigger prices for symbol: {symbol} are price: {new_sell_price_trigger}")
@@ -189,4 +189,10 @@ for symbol, prices in symbol_prices.items():
     if symbol not in symbol_triggers:
         if symbol_prices[symbol]['last_price'] - symbol_prices[symbol]['average_price'] > 0:
             pOrL = "PROFIT"
-        print(f"Symbol: {symbol},\t Status: {pOrL}")
+            new_sell_price_trigger = last_price - (last_price * 0.01)
+            rounded_trigger = round(new_sell_price_trigger / 0.05) * 0.05  # rounding to nearest multiple of 0.05
+            rounded_trigger = round(rounded_trigger, 2)  # ensuring two decimal places
+            new_sell_price_trigger = rounded_trigger
+            if new_sell_price_trigger < symbol_prices[symbol]['average_price']:
+                new_sell_price_trigger = 0.0
+        print(f"Symbol: {symbol},\t Status: {pOrL} \t new trigger values: [{new_sell_price_trigger}, {new_sell_price_trigger+new_sell_price_trigger}]")
