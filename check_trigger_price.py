@@ -1,6 +1,6 @@
 import requests
 
-authorizationToken = "enctoken "
+authorizationToken = "enctoken hLcapgYU1IaVU7PTDm/kXQqPsrnLBZCMP4p5HoLOki6wJnM6oVAl73arZ3j8YOicmJXuP7Su1cqX10lAR2Ji8fYhBpwrN0ZSmFbk1BMAYaerEWTx1bx18A=="
 
 headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -102,7 +102,7 @@ def printTriggerValues(transactionType):
                         new_sell_price_trigger = last_price - (last_price * trigger_percentage)
                         new_sell_price_trigger = round(new_sell_price_trigger, 1)
                     
-                        if new_sell_price_trigger > average_price and trigger_percentage >= 0.01:
+                        if new_sell_price_trigger > average_price and new_sell_price_trigger >  gtt['trigger_values'][0] and trigger_percentage >= 0.01:
                             old_trigger_values = "[" + str(gtt['trigger_values'][0]) + ", " + str(gtt['trigger_values'][1]) + "]"
 
                             new_trigger_values = "[" + str(new_sell_price_trigger) + ", " + str(new_sell_price_trigger + new_sell_price_trigger) + "]"
