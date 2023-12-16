@@ -82,6 +82,7 @@ def printTriggerValues(transactionType):
                 average_price = item.get("average_price")
 
                 symbol_prices[symbol] = {"last_price": last_price, "average_price": average_price}
+                
 
             # Printing the map containing symbol, last_price, and average_price
             for symbol, prices in symbol_prices.items():
@@ -91,54 +92,21 @@ def printTriggerValues(transactionType):
                         last_price = prices['last_price']
                         average_price = prices['average_price']
 
-                        new_sell_price_trigger = last_price - (last_price * 0.01)
-                        rounded_trigger = round(new_sell_price_trigger / 0.05) * 0.05  # rounding to nearest multiple of 0.05
-                        rounded_trigger = round(rounded_trigger, 2)  # ensuring two decimal places
-                        new_sell_price_trigger = rounded_trigger
+                        percentage_change = (last_price - average_price)/average_price * 100
 
-                        if new_sell_price_trigger > average_price and (new_sell_price_trigger - gtt['trigger_values'][0])/gtt['trigger_values'][0] >= 0.01:
-                            print(f"{symbol}: \t avg buy price: {average_price}, last_price: {last_price:<10.2f} \t old trigger values: [{gtt['trigger_values'][0]}, {gtt['trigger_values'][1]}] \t new trigger values: [{new_sell_price_trigger}, {new_sell_price_trigger+new_sell_price_trigger}]")
+                        if percentage_change > 10.00:
+                            percentage_change = 10.00
 
-                            # print(f"new trigger prices for symbol: {symbol} are price: {new_sell_price_trigger}")
-                            # id = gtt['id']
-                            # print(f"modifying for {symbol} and id is {id}")
-                            # modifyUrl = "https://kite.zerodha.com/oms/gtt/triggers/" + str(id)
-                            # # print(f"Symbol: {symbol},\tAverage Price: {average_price},\tLast Sell Price Trigger: {gtt['trigger_values'][0]},\tNew Sell Price Trigger: {new_sell_price_trigger}")
+                        trigger_percentage = percentage_change/200
 
-                            # # Payload for the PUT request
-                            # payload = {
-                            #     "condition": {
-                            #         "exchange": gtt['exchange'],
-                            #         "tradingsymbol": symbol,
-                            #         "trigger_values": [new_sell_price_trigger, new_sell_price_trigger+new_sell_price_trigger],
-                            #         "last_price": last_price
-                            #     },
-                            #     "orders": [
-                            #         {
-                            #             "exchange": gtt['exchange'],
-                            #             "tradingsymbol": symbol,
-                            #             "transaction_type": gtt['transaction_type'],
-                            #             "quantity": gtt['quantity'],
-                            #             "price": new_sell_price_trigger,
-                            #             "order_type": gtt['order_type'],
-                            #             "product": gtt['product']
-                            #         },
-                            #         {
-                            #             "exchange": gtt['exchange'],
-                            #             "tradingsymbol": symbol,
-                            #             "transaction_type": gtt['transaction_type'],
-                            #             "quantity": gtt['quantity'],
-                            #             "price": new_sell_price_trigger+new_sell_price_trigger,
-                            #             "order_type": gtt['order_type'],
-                            #             "product": gtt['product']
-                            #         }
-                            #     ],
-                            #     "type": gtt['type'],
-                            #     "expires_at": gtt['expires_at']
-                            # }
+                        new_sell_price_trigger = last_price - (last_price * trigger_percentage)
+                        new_sell_price_trigger = round(new_sell_price_trigger, 1)
+                    
+                        if new_sell_price_trigger > average_price and trigger_percentage >= 0.01:
+                            old_trigger_values = "[" + str(gtt['trigger_values'][0]) + ", " + str(gtt['trigger_values'][1]) + "]"
 
-                            # print(f"new trigger prices for symbol: {symbol} are price: {new_sell_price_trigger}")
-                            # modifyTrigger(modifyUrl, payload)
+                            new_trigger_values = "[" + str(new_sell_price_trigger) + ", " + str(new_sell_price_trigger + new_sell_price_trigger) + "]"
+                            print("{:<20} {:20} {:>20}".format(symbol, old_trigger_values, new_trigger_values))
                     elif gtt['type'] == "single" and transactionType == "BUY":
                         last_price = prices['last_price']
                         average_price = prices['average_price']
@@ -178,22 +146,35 @@ printTriggerValues("SELL")
 print()
 print()
 
-print("BUY TRIGGERS")
-printTriggerValues("BUY")
-print()
-print()
+# print("BUY TRIGGERS")
+# printTriggerValues("BUY")
+# print()
+# print()
 
 print("Add trigger for these: ")
 for symbol, prices in symbol_prices.items():
     pOrL = "LOSS"
     new_sell_price_trigger = 0.0
     if symbol not in symbol_triggers:
-        if symbol_prices[symbol]['last_price'] - symbol_prices[symbol]['average_price'] > 0:
+        last_price = symbol_prices[symbol]['last_price']
+        average_price = symbol_prices[symbol]['average_price']
+
+        if last_price - average_price > 0:
+            
+            percentage_change = (last_price - average_price)/average_price * 100
+
+            if percentage_change > 10.00:
+                percentage_change = 10.00
+
+            trigger_percentage = percentage_change/200
+
+            new_sell_price_trigger = last_price - (last_price * trigger_percentage)
+            new_sell_price_trigger = round(new_sell_price_trigger, 1)
             pOrL = "PROFIT"
-            new_sell_price_trigger = symbol_prices[symbol]['last_price'] - (symbol_prices[symbol]['last_price'] * 0.01)
-            rounded_trigger = round(new_sell_price_trigger / 0.05) * 0.05  # rounding to nearest multiple of 0.05
-            rounded_trigger = round(rounded_trigger, 2)  # ensuring two decimal places
-            new_sell_price_trigger = rounded_trigger
-        if new_sell_price_trigger < symbol_prices[symbol]['average_price']:
+            
+        if new_sell_price_trigger > average_price:
+            new_trigger_values = "[" + str(new_sell_price_trigger) + ", " + str(new_sell_price_trigger + new_sell_price_trigger) + "]"
+            print("{:<20} {:20} {:>20}".format(symbol, pOrL, new_trigger_values))
+            # print(f"Symbol: {symbol},\t Status: {pOrL} \t new trigger values: [{new_sell_price_trigger}, {new_sell_price_trigger+new_sell_price_trigger}]")
+        else:
             new_sell_price_trigger = 0.0
-        print(f"Symbol: {symbol},\t Status: {pOrL} \t new trigger values: [{new_sell_price_trigger}, {new_sell_price_trigger+new_sell_price_trigger}]")
