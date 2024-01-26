@@ -1,6 +1,6 @@
 import requests
 
-authorizationToken = "enctoken "
+authorizationToken = "enctoken SWctyljezepA4uXzLWVJ7mwUe9jh7oiXxkIFdWDH1osM3A9+D4DuwlwVqYvjZ7sPex7Q3FTBxCVz2MDDKvZxFaSp5lgW4Mi4E64hya7+5sLL+uCijCQBfA=="
 
 headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -41,6 +41,7 @@ def updateTriggerMap():
                 quantity = order_1["quantity"]
                 order_type = order_1["order_type"]
                 product = order_1["product"]
+                quantity = order_1["quantity"]
 
                 #print(id, status, expires_at, exchange, symbol, trigger_values, gtt_type, quantity, order_type, product)
 
@@ -54,7 +55,8 @@ def updateTriggerMap():
                     "transaction_type": transaction_type,
                     "quantity": quantity,
                     "order_type": order_type,
-                    "product": product
+                    "product": product,
+                    "quantity": quantity
                 }
 
             # # Printing the map containing symbol, trigger_values and type for active triggers
@@ -80,14 +82,17 @@ def printTriggerValues(transactionType):
                 symbol = item.get("tradingsymbol")
                 last_price = item.get("last_price")
                 average_price = item.get("average_price")
+                quantity = item.get("quantity")
 
-                symbol_prices[symbol] = {"last_price": last_price, "average_price": average_price}
+                symbol_prices[symbol] = {"last_price": last_price, "average_price": average_price, "quantity": quantity}
                 
 
             # Printing the map containing symbol, last_price, and average_price
             for symbol, prices in symbol_prices.items():
                 if symbol in symbol_triggers:
                     gtt = symbol_triggers[symbol]
+                    trigger_qty = gtt['quantity']
+                    total_qty = prices['quantity']
                     if gtt['type'] == "two-leg" and transactionType == "SELL":
                         last_price = prices['last_price']
                         average_price = prices['average_price']
@@ -106,7 +111,7 @@ def printTriggerValues(transactionType):
                             old_trigger_values = "[" + str(gtt['trigger_values'][0]) + ", " + str(gtt['trigger_values'][1]) + "]"
 
                             new_trigger_values = "[" + str(new_sell_price_trigger) + ", " + str(new_sell_price_trigger + new_sell_price_trigger) + "]"
-                            print("{:<20} {:20} {:>20}".format(symbol, old_trigger_values, new_trigger_values))
+                            print("{:<20} {:20} {:20} {:>20}".format(symbol, str(trigger_qty)+"/"+str(total_qty), old_trigger_values, new_trigger_values))
                     elif gtt['type'] == "single" and transactionType == "BUY":
                         last_price = prices['last_price']
                         average_price = prices['average_price']
