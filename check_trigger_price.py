@@ -1,6 +1,6 @@
 import requests
 
-authorizationToken = "enctoken SWctyljezepA4uXzLWVJ7mwUe9jh7oiXxkIFdWDH1osM3A9+D4DuwlwVqYvjZ7sPex7Q3FTBxCVz2MDDKvZxFaSp5lgW4Mi4E64hya7+5sLL+uCijCQBfA=="
+authorizationToken = "enctoken"
 
 headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
